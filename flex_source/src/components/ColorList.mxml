@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:List
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
+	xmlns:s="library://ns.adobe.com/flex/spark"
+	change="changeSelectedIds(event)">
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import mx.utils.ObjectUtil;
+			
+			private var _selectedIds:*;
+			
+			[Bindable("selectedColorIdsChanged")]
+			public function get selectedIds():*{
+				return _selectedIds;
+			}
+			
+			/**
+			 * since selected colors comes from an HABTM relationship, we
+			 * supply the selectedIds with an xml list. eg:
+			 * <color>1</color>
+			 * <color>5</color>
+			 * 
+			 */
+			public function set selectedIds(ids:XMLList):void{
+				var indices = new <int>[];
+				for each (var id in ids){
+					var i:Number = 0;
+					for each(var item:* in dataProvider){
+						if(item.@id == id){
+							indices.push(i);
+						}
+					i++;}
+				}
+				_selectedIds = ids;
+				selectedIndices = indices;
+			}
+			
+			protected function changeSelectedIds(event):void{
+				var children:XML = new XML('<data/>'); 
+				for each(var item:* in selectedItems){
+					children.appendChild(XMLList('<color>'+item.@id+'</color>'));
+				}
+				selectedIds = children.color;
+				dispatchEvent(new Event("selectedColorIdsChanged"));
+			}
+			
+		]]>
+	</fx:Script>
+	<s:itemRenderer>
+		<fx:Component>
+			<s:ItemRenderer width="100%">
+				<fx:Script>
+					<![CDATA[
+						import mx.collections.XMLListCollection;
+					]]>
+				</fx:Script>
+				<s:Group verticalCenter="0" left="2" right="2" top="2" bottom="2">
+					<s:layout> 
+						<s:HorizontalLayout/> 
+					</s:layout>
+					<s:BorderContainer width="50" height="50" backgroundColor="{data.@color}"/>
+					<s:Label text="{data.@name}" fontSize="20" transformX="5"/>
+				</s:Group>
+			</s:ItemRenderer>
+		</fx:Component>
+	</s:itemRenderer>  
+</s:List>
